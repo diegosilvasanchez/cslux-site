@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSLUX — Painéis de LED</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070c11;
+    --navy:#0b141d;
+    --navy-2:#0a1a22;
+    --panel:#0e1b26;
+    --panel-line:#1c2e3b;
+    --teal:#22d6d6;
+    --teal-soft:#7fe8e8;
+    --teal-deep:#0a3a42;
+    --text:#eef4f6;
+    --text-muted:#8fa4b0;
+    --radius:8px;
+    --maxw:1240px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.65;overflow-x:hidden;}
+  h1,h2,h3,h4,.brand,.eyebrow,.btn,nav a,.footer-col h4{font-family:'Poppins',sans-serif;}
+  a{color:inherit;text-decoration:none;}
+  ul{list-style:none;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+  .eyebrow{display:inline-block;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:14px;}
+  section{position:relative;padding:100px 0;}
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important;} html{scroll-behavior:auto;}}
+
+  /* ---------------- HEADER ---------------- */
+  header{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(7,12,17,.85);backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .3s ease, background .3s ease;}
+  header.scrolled{border-bottom-color:var(--panel-line);background:rgba(7,12,17,.97);}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;max-width:var(--maxw);margin:0 auto;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{width:34px;height:34px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:2px;flex:0 0 auto;}
+  .brand-mark i{background:var(--teal);border-radius:1px;opacity:.35;}
+  .brand-mark i:nth-child(2),.brand-mark i:nth-child(5),.brand-mark i:nth-child(6),.brand-mark i:nth-child(9),.brand-mark i:nth-child(10),.brand-mark i:nth-child(11){opacity:1;}
+  .brand-text{line-height:1.05;}
+  .brand-text .name{font-size:1.28rem;font-weight:800;letter-spacing:.01em;}
+  .brand-text .name span{color:var(--teal);}
+  .brand-text small{display:block;font-size:.6rem;letter-spacing:.28em;color:var(--text-muted);text-transform:uppercase;margin-top:2px;}
+  .nav-links{display:flex;gap:38px;align-items:center;}
+  .nav-links a{font-size:.85rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);position:relative;padding-bottom:8px;transition:color .2s ease;}
+  .nav-links a:hover,.nav-links a.active{color:var(--text);}
+  .nav-links a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--teal);}
+  .burger{display:none;background:none;border:none;color:var(--text);font-size:1.6rem;cursor:pointer;}
+
+  /* ---------------- BUTTONS ---------------- */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:14px 26px;border-radius:6px;font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:1.5px solid transparent;transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, color .18s ease;white-space:nowrap;}
+  .btn-primary{background:var(--teal);color:#04181c;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(34,214,214,.28);}
+  .btn-outline{background:transparent;border-color:rgba(255,255,255,.35);color:#fff;}
+  .btn-outline:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-2px);}
+
+  /* ---------------- HERO ---------------- */
+  .hero{padding:180px 0 110px;background:linear-gradient(115deg,#0a2b30 0%,#0b1c26 45%,#070c11 85%);position:relative;overflow:hidden;}
+  .hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 20%, rgba(34,214,214,.14), transparent 60%);pointer-events:none;}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center;position:relative;z-index:2;}
+  .hero h1{font-size:3.1rem;font-weight:800;line-height:1.12;letter-spacing:-.005em;text-transform:uppercase;margin-bottom:22px;}
+  .hero h1 em{font-style:normal;color:var(--teal);}
+  .hero p{font-size:1.05rem;color:#c4d3da;max-width:480px;margin-bottom:36px;}
+  .hero-actions{display:flex;gap:16px;flex-wrap:wrap;}
+
+  /* ad screen — painel de LED renderizado, com a marca como conteúdo real da tela */
+  .billboard-wrap{position:relative;display:flex;justify-content:center;}
+  .ad-screen{
+    position:relative;width:100%;max-width:600px;aspect-ratio:4/3.15;overflow:hidden;
+    background:radial-gradient(ellipse 95% 85% at 50% 38%, #0e2f36 0%, #081a20 45%, #040a0d 80%, #020405 100%);
+    -webkit-mask-image:radial-gradient(ellipse 84% 84% at 50% 46%, black 58%, transparent 100%);
+    mask-image:radial-gradient(ellipse 84% 84% at 50% 46%, black 58%, transparent 100%);
+  }
+  .ad-screen .dots{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.22) 1px, transparent 1.3px);background-size:5px 5px;mix-blend-mode:overlay;opacity:.5;}
+  .ad-screen .grain{position:absolute;inset:0;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .ad-screen .vignette{position:absolute;inset:0;background:radial-gradient(ellipse 68% 66% at 50% 42%, transparent 35%, rgba(0,0,0,.6) 100%);}
+  .ad-screen .sheen{position:absolute;inset:0;background:linear-gradient(115deg, rgba(255,255,255,.05) 0%, transparent 30%);}
+  .ad-content{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ad-content .ad-mark{width:58px;height:58px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:3px;margin-bottom:20px;filter:drop-shadow(0 0 12px rgba(34,214,214,.85));}
+  .ad-content .ad-mark i{background:var(--teal);border-radius:1px;opacity:.28;}
+  .ad-content .ad-mark i:nth-child(2),.ad-content .ad-mark i:nth-child(5),.ad-content .ad-mark i:nth-child(6),.ad-content .ad-mark i:nth-child(9),.ad-content .ad-mark i:nth-child(10),.ad-content .ad-mark i:nth-child(11){opacity:1;}
+  .ad-content .name{font-family:'Poppins';font-weight:800;font-size:3.1rem;line-height:1;letter-spacing:.02em;color:#f4fdfd;text-shadow:0 0 4px rgba(255,255,255,.6), 0 0 26px rgba(34,214,214,.95), 0 0 64px rgba(34,214,214,.55);}
+  .ad-content .name span{color:var(--teal);}
+  .ad-content .tagline{margin-top:12px;font-size:.8rem;font-weight:600;letter-spacing:.42em;color:var(--teal-soft);text-transform:uppercase;text-shadow:0 0 16px rgba(34,214,214,.75);}
+  .ad-content .rule{width:64px;height:2px;margin-top:18px;background:linear-gradient(90deg,transparent,var(--teal),transparent);opacity:.8;}
+
+  /* ---------------- SOLUÇÕES + SOBRE TEASER STRIP ---------------- */
+  .strip{background:var(--navy-2);border-top:1px solid var(--panel-line);border-bottom:1px solid var(--panel-line);}
+  .strip-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:0;}
+  .strip-left{padding:80px 50px 80px 0;}
+  .strip-left .eyebrow{margin-left:0;}
+  .icon-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--panel-line);margin-top:36px;}
+  .icon-item{padding:34px 22px 10px;border-right:1px solid var(--panel-line);}
+  .icon-item:last-child{border-right:none;}
+  .icon-circle{width:52px;height:52px;color:var(--teal);margin-bottom:18px;}
+  .icon-item h4{font-size:.95rem;font-weight:700;margin-bottom:8px;letter-spacing:.02em;}
+  .icon-item p{font-size:.85rem;color:var(--text-muted);}
+  .strip-right{padding:80px 0 80px 50px;border-left:1px solid var(--panel-line);position:relative;}
+  .strip-right h3{font-size:1.4rem;font-weight:700;margin-bottom:16px;text-transform:uppercase;}
+  .strip-right p{color:var(--text-muted);font-size:.92rem;margin-bottom:22px;}
+  .facade-visual{aspect-ratio:4/3;border-radius:var(--radius);overflow:hidden;margin-top:26px;border:1px solid var(--panel-line);position:relative;}
+  .facade-visual img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.1);}
+  .facade-visual::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(10,26,34,.05), rgba(7,12,17,.55));}
+
+  /* ---------------- SOBRE (full) ---------------- */
+  #sobre .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center;}
+  h2{font-size:2.1rem;font-weight:800;letter-spacing:-.01em;margin-bottom:20px;line-height:1.18;text-transform:uppercase;}
+  .about-text p{color:var(--text-muted);margin-bottom:16px;font-size:1rem;}
+  .about-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:30px;}
+  .about-stats .st b{display:block;font-size:1.9rem;font-weight:800;color:var(--teal);}
+  .about-stats .st span{font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
+  .building-visual{aspect-ratio:3/4;border-radius:var(--radius);overflow:hidden;border:1px solid var(--panel-line);position:relative;}
+  .building-visual img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.1);}
+  .building-visual::after{content:"";position:absolute;inset:0;background:linear-gradient(200deg, rgba(10,26,34,.05), rgba(7,12,17,.5));}
+  .building-visual .caption{position:absolute;left:16px;bottom:16px;z-index:2;background:rgba(7,12,17,.75);backdrop-filter:blur(6px);border:1px solid rgba(34,214,214,.3);border-radius:6px;padding:8px 14px;font-size:.78rem;color:var(--teal-soft);letter-spacing:.05em;}
+
+  /* ---------------- SERVIÇOS ---------------- */
+  #servicos{background:var(--navy-2);}
+  .section-head{max-width:600px;margin-bottom:50px;}
+  .section-head p{color:var(--text-muted);}
+  .services-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--panel-line);border-left:1px solid var(--panel-line);}
+  .service-card{padding:36px 30px;border-right:1px solid var(--panel-line);border-bottom:1px solid var(--panel-line);transition:background .25s ease;}
+  .service-card:hover{background:rgba(34,214,214,.04);}
+  .service-icon{width:44px;height:44px;color:var(--teal);margin-bottom:20px;}
+  .service-card h3{font-size:1.02rem;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.02em;}
+  .service-card p{color:var(--text-muted);font-size:.88rem;}
+
+  /* ---------------- PORTFOLIO ---------------- */
+  .filter-tags{display:flex;gap:10px;margin-bottom:36px;flex-wrap:wrap;}
+  .tag{padding:8px 16px;border:1px solid var(--panel-line);border-radius:999px;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;transition:all .2s ease;}
+  .tag.active,.tag:hover{border-color:var(--teal);color:var(--teal);}
+  .portfolio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .port-card{border-radius:var(--radius);overflow:hidden;border:1px solid var(--panel-line);background:var(--panel);}
+  .port-thumb{aspect-ratio:4/3;position:relative;overflow:hidden;background:#081117;}
+  .port-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease;filter:saturate(1.1);}
+  .port-card:hover .port-thumb img{transform:scale(1.06);}
+  .port-thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg, rgba(7,12,17,.75) 0%, rgba(7,12,17,.05) 45%);}
+  .port-thumb .label{position:absolute;bottom:10px;left:12px;z-index:2;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#04181c;background:var(--teal);padding:4px 9px;border-radius:4px;font-weight:700;}
+  .port-info{padding:18px 20px;}
+  .port-info h4{font-size:.98rem;font-weight:700;margin-bottom:4px;text-transform:uppercase;}
+  .port-info span{font-size:.8rem;color:var(--text-muted);}
+
+  /* ---------------- CONTATO ---------------- */
+  #contato{background:var(--navy-2);}
+  .contact-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:60px;}
+  .contact-info p{color:var(--text-muted);margin-bottom:30px;}
+  .info-row{display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-top:1px solid var(--panel-line);}
+  .info-row:last-of-type{border-bottom:1px solid var(--panel-line);}
+  .info-row .ic{width:36px;height:36px;color:var(--teal);flex:0 0 auto;}
+  .info-row b{display:block;font-size:.92rem;}
+  .info-row small{color:var(--text-muted);font-size:.83rem;}
+  form{background:var(--panel);border:1px solid var(--panel-line);border-radius:var(--radius);padding:34px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .field{margin-bottom:18px;}
+  .field.full{grid-column:1/-1;}
+  label{display:block;font-size:.78rem;color:var(--text-muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.04em;}
+  input,select,textarea{width:100%;padding:12px 14px;background:var(--navy);border:1px solid var(--panel-line);border-radius:6px;color:var(--text);font-family:'Inter';font-size:.92rem;transition:border-color .2s ease;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);}
+  textarea{resize:vertical;min-height:100px;}
+  .form-note{font-size:.76rem;color:var(--text-muted);margin-top:14px;text-align:center;}
+  .form-success{display:none;text-align:center;padding:30px 10px;}
+  .form-success.show{display:block;}
+  .form-success .ic{width:50px;height:50px;border-radius:50%;background:rgba(34,214,214,.12);color:var(--teal);display:grid;place-items:center;margin:0 auto 14px;}
+
+  /* ---------------- FOOTER ---------------- */
+  footer{background:var(--bg);border-top:1px solid var(--panel-line);padding:70px 0 0;}
+  .footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1.3fr;gap:40px;padding-bottom:50px;}
+  .footer-col h4{color:var(--teal);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px;}
+  .footer-col p{color:var(--text-muted);font-size:.88rem;margin:14px 0 20px;max-width:260px;}
+  .footer-col ul li{margin-bottom:12px;}
+  .footer-col ul li a{color:var(--text-muted);font-size:.9rem;transition:color .2s ease;}
+  .footer-col ul li a:hover{color:var(--teal);}
+  .footer-contact li{display:flex;align-items:flex-start;gap:10px;color:var(--text-muted);font-size:.88rem;margin-bottom:14px;}
+  .footer-contact li svg{color:var(--teal);flex:0 0 auto;margin-top:2px;}
+  .socials{display:flex;gap:10px;}
+  .socials a{width:34px;height:34px;border-radius:50%;background:var(--panel);border:1px solid var(--panel-line);display:grid;place-items:center;color:var(--teal);transition:all .2s ease;}
+  .socials a:hover{background:var(--teal);color:#04181c;}
+  .footer-bottom{border-top:1px solid var(--panel-line);padding:22px 0;text-align:center;font-size:.82rem;color:var(--text-muted);}
+
+  /* ---------------- FLOATING WHATSAPP ---------------- */
+  .float-whats{position:fixed;bottom:26px;right:26px;z-index:999;background:var(--teal);color:#04181c;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;box-shadow:0 10px 30px rgba(34,214,214,.4);animation:pulse 2.4s infinite;}
+  .float-whats:hover{transform:scale(1.06);}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,214,214,.5),0 10px 30px rgba(34,214,214,.35);}70%{box-shadow:0 0 0 14px rgba(34,214,214,0),0 10px 30px rgba(34,214,214,.35);}100%{box-shadow:0 0 0 0 rgba(34,214,214,0),0 10px 30px rgba(34,214,214,.35);}}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media (max-width:980px){
+    .hero-grid,#sobre .about-grid,.contact-grid{grid-template-columns:1fr;}
+    .strip-grid{grid-template-columns:1fr;}
+    .strip-left{padding:60px 0 20px;}
+    .strip-right{padding:40px 0;border-left:none;border-top:1px solid var(--panel-line);}
+    .icon-row{grid-template-columns:repeat(2,1fr);}
+    .icon-item:nth-child(2n){border-right:none;}
+    .services-grid{grid-template-columns:repeat(2,1fr);}
+    .portfolio-grid{grid-template-columns:repeat(2,1fr);}
+    .footer-grid{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:760px){
+    .nav-links{display:none;}
+    .nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;background:var(--bg);flex-direction:column;padding:20px 28px;border-bottom:1px solid var(--panel-line);gap:18px;}
+    .burger{display:block;}
+    .hero h1{font-size:2.1rem;}
+    .icon-row,.services-grid,.portfolio-grid,.footer-grid{grid-template-columns:1fr;}
+    .icon-item,.service-card{border-right:none;}
+    .form-row{grid-template-columns:1fr;}
+    section{padding:70px 0;}
+    .hero{padding:150px 0 70px;}
+  }
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <nav class="nav">
+    <a href="#inicio" class="brand">
+      <div class="brand-mark"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="brand-text">
+        <div class="name">CS<span>LUX</span></div>
+        <small>Painéis de LED</small>
+      </div>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#inicio" class="active">Início</a></li>
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#servicos">Serviços</a></li>
+      <li><a href="#portfolio">Portfólio</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+    <button class="burger" id="burger">☰</button>
+  </nav>
+</header>
+
+<!-- ================= HERO ================= -->
+<section id="inicio" class="hero">
+  <div class="wrap hero-grid">
+    <div class="reveal">
+      <div class="eyebrow">Tecnologia que ilumina sua marca</div>
+      <h1>Painéis de LED<br>com <em>alto impacto</em></h1>
+      <p>Soluções completas em painéis de LED para publicidade, eventos, empresas e muito mais.</p>
+      <div class="hero-actions">
+        <a href="#servicos" class="btn btn-primary">Nossos Serviços →</a>
+        <a href="https://wa.me/5511999991234" target="_blank" rel="noopener" class="btn btn-outline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 20 12a8 8 0 0 1-8 8zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8 1-.1.1-.3.2-.5.1-.7-.3-1.4-.8-2-1.3-.5-.5-1-1.2-1.4-1.9-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.1 0-.3 0-.4-.1-.1-.5-1.3-.7-1.8-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.6.6-.9 1.3-.9 2.1.1.9.4 1.8 1 2.6 1 1.5 2.2 2.7 3.7 3.6.5.3 1 .5 1.5.7.7.2 1.3.2 1.8.1.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3z"/></svg>
+          Fale Conosco
+        </a>
+      </div>
+    </div>
+
+    <div class="billboard-wrap reveal">
+      <div class="ad-screen">
+        <div class="dots"></div>
+        <div class="grain"></div>
+        <div class="sheen"></div>
+        <div class="ad-content">
+          <div class="ad-mark"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="name">CS<span>LUX</span></div>
+          <div class="tagline">Painéis de LED</div>
+          <div class="rule"></div>
+        </div>
+        <div class="vignette"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SOLUÇÕES + SOBRE TEASER ================= -->
+<section class="strip">
+  <div class="wrap strip-grid">
+    <div class="strip-left reveal">
+      <div class="eyebrow">O que oferecemos</div>
+      <h2 style="margin-bottom:0;">Nossas Soluções</h2>
+      <div class="icon-row">
+        <div class="icon-item">
+          <svg class="icon-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>
+          <h4>Venda de Painéis</h4>
+          <p>Painéis de LED de alta qualidade com tecnologia de ponta.</p>
+        </div>
+        <div class="icon-item">
+          <svg class="icon-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+          <h4>Locação</h4>
+          <p>Locação de painéis para eventos, feiras, shows e campanhas.</p>
+        </div>
+        <div class="icon-item">
+          <svg class="icon-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-3-3z"/></svg>
+          <h4>Instalação</h4>
+          <p>Instalação profissional com segurança e eficiência.</p>
+        </div>
+        <div class="icon-item">
+          <svg class="icon-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+          <h4>Suporte Técnico</h4>
+          <p>Manutenção e suporte especializado sempre que precisar.</p>
+        </div>
+      </div>
+    </div>
+    <div class="strip-right reveal">
+      <div class="eyebrow">Quem somos</div>
+      <h3>Sobre a CSLUX</h3>
+      <p>A CSLUX é especialista em soluções com painéis de LED, oferecendo tecnologia, qualidade e inovação para destacar sua marca e mensagem onde você estiver.</p>
+      <a href="#sobre" class="btn btn-primary">Saiba Mais →</a>
+      <div class="facade-visual">
+        <img src="https://images.unsplash.com/photo-1629150154933-a42577786d4f?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Rua à noite com painéis de LED iluminando fachadas de prédios">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SOBRE (completa) ================= -->
+<section id="sobre">
+  <div class="wrap about-grid">
+    <div class="building-visual reveal">
+      <img src="https://images.unsplash.com/photo-1596040078821-9b5f50e71ea5?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Técnico realizando instalação de painel de LED">
+      <div class="caption">Equipe técnica própria em campo</div>
+    </div>
+    <div class="about-text reveal">
+      <div class="eyebrow">Quem somos</div>
+      <h2>Especialistas em levar luz e imagem a qualquer espaço</h2>
+      <p>A CSLUX atua do dimensionamento técnico à instalação final de painéis de LED, atendendo produtoras de eventos, agências, redes de varejo e empresas que buscam telões de alta definição com robustez para uso intensivo.</p>
+      <p>Nossa equipe própria de técnicos cuida de cada etapa — transporte, rigging, cabeamento, processamento de imagem e suporte em tempo real — para que o painel simplesmente funcione, do início ao fim.</p>
+      <div class="about-stats">
+        <div class="st"><b>8+</b><span>Anos de mercado</span></div>
+        <div class="st"><b>300+</b><span>Projetos entregues</span></div>
+        <div class="st"><b>1.200m²</b><span>Painéis instalados</span></div>
+        <div class="st"><b>50+</b><span>Cidades atendidas</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SERVIÇOS ================= -->
+<section id="servicos">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">O que fazemos</div>
+      <h2>Serviços</h2>
+      <p>Soluções completas em painéis de LED, para compra, locação ou operação assistida do seu evento.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>
+        <h3>Venda de Painéis</h3>
+        <p>Fornecimento de painéis com tecnologia de ponta e garantia de fábrica.</p>
+      </div>
+      <div class="service-card reveal">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        <h3>Locação para Eventos</h3>
+        <p>Painéis para shows, feiras e ativações, com montagem e operação inclusas.</p>
+      </div>
+      <div class="service-card reveal">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-3-3z"/></svg>
+        <h3>Instalação Profissional</h3>
+        <p>Instalação fixa em fachadas, lojas e centros de eventos com segurança.</p>
+      </div>
+      <div class="service-card reveal">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <h3>Vídeo Mapping e Conteúdo</h3>
+        <p>Criação de conteúdo e programação visual sob medida para seu painel.</p>
+      </div>
+      <div class="service-card reveal">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l2.2 4.5 5 .7-3.6 3.5.8 5-4.4-2.3-4.4 2.3.8-5L4.8 8.2l5-.7L12 3z"/></svg>
+        <h3>Estruturas para Eventos</h3>
+        <p>Projeto e montagem de rigging, treliças e bases para grandes painéis.</p>
+      </div>
+      <div class="service-card reveal">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <h3>Suporte Técnico</h3>
+        <p>Manutenção preventiva e técnico dedicado durante a operação do evento.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PORTFOLIO ================= -->
+<section id="portfolio">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Projetos realizados</div>
+      <h2>Portfólio</h2>
+      <p>Uma amostra de projetos entregues em shows, eventos corporativos, casamentos e fachadas comerciais.</p>
+    </div>
+    <div class="filter-tags reveal">
+      <div class="tag active">Todos</div>
+      <div class="tag">Shows &amp; Festivais</div>
+      <div class="tag">Corporativo</div>
+      <div class="tag">Casamentos</div>
+      <div class="tag">Fachadas</div>
+    </div>
+    <div class="portfolio-grid" id="portfolioGrid"></div>
+  </div>
+</section>
+
+<!-- ================= CONTATO ================= -->
+<section id="contato">
+  <div class="wrap contact-grid">
+    <div class="contact-info reveal">
+      <div class="eyebrow">Fale com a gente</div>
+      <h2>Vamos planejar seu painel de LED</h2>
+      <p>Preencha o formulário com os detalhes do seu projeto ou fale direto com nosso time pelo WhatsApp. Respondemos em até 1 dia útil.</p>
+      <div class="info-row">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .7 3a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.4c1 .4 2 .6 3 .7a2 2 0 0 1 1.6 2.8z"/></svg>
+        <div><b>(11) 99999-1234</b><br><small>Atendimento comercial</small></div>
+      </div>
+      <div class="info-row">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+        <div><b>contato@cslux.com.br</b><br><small>Orçamentos e dúvidas</small></div>
+      </div>
+      <div class="info-row">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div><b>Rua das Luminárias, 123</b><br><small>Vila Nova Conceição, São Paulo - SP</small></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <form id="orcamentoForm">
+        <div id="formFields">
+          <div class="form-row">
+            <div class="field"><label for="nome">Nome completo</label><input type="text" id="nome" name="nome" required placeholder="Seu nome"></div>
+            <div class="field"><label for="empresa">Empresa</label><input type="text" id="empresa" name="empresa" placeholder="Opcional"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label for="telefone">Telefone / WhatsApp</label><input type="tel" id="telefone" name="telefone" required placeholder="(00) 00000-0000"></div>
+            <div class="field"><label for="email">E-mail</label><input type="email" id="email" name="email" required placeholder="voce@email.com"></div>
+          </div>
+          <div class="field full">
+            <label for="tipo">Tipo de projeto</label>
+            <select id="tipo" name="tipo">
+              <option>Locação para evento</option>
+              <option>Instalação fixa / fachada</option>
+              <option>Manutenção de painel existente</option>
+              <option>Outro</option>
+            </select>
+          </div>
+          <div class="field full"><label for="mensagem">Conte um pouco sobre o projeto</label><textarea id="mensagem" name="mensagem" placeholder="Data do evento, tamanho aproximado do painel, local, etc."></textarea></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;padding:15px;">Enviar Solicitação</button>
+          <p class="form-note">Ao enviar, você concorda em ser contatado pela nossa equipe comercial.</p>
+        </div>
+        <div class="form-success" id="formSuccess">
+          <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <h3 style="text-transform:none;">Solicitação enviada!</h3>
+          <p style="color:var(--text-muted);margin-top:8px;">Obrigado! Nosso time vai analisar seu pedido e retornar em breve.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div class="footer-col">
+      <a href="#inicio" class="brand">
+        <div class="brand-mark"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="brand-text"><div class="name">CS<span>LUX</span></div><small>Painéis de LED</small></div>
+      </a>
+      <p>Iluminando ideias, conectando pessoas e impulsionando resultados com tecnologia e criatividade.</p>
+      <div class="socials">
+        <a href="#" aria-label="Facebook"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5H16l.5-3H13.5V8.4c0-.87.24-1.46 1.5-1.46H16.6V4.3A20 20 0 0 0 14.2 4c-2.3 0-3.9 1.4-3.9 4v2.5H8v3h2.3V21z"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.2" cy="6.8" r="1"/></svg></a>
+        <a href="#" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 8.5H3.6V20h3.34zM5.27 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM20.4 20h-3.34v-6.02c0-1.44-.03-3.3-2.01-3.3-2 0-2.31 1.57-2.31 3.2V20H9.4V8.5h3.2v1.57h.05c.45-.85 1.55-1.75 3.2-1.75 3.4 0 4.03 2.25 4.03 5.17z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Links Rápidos</h4>
+      <ul><li><a href="#inicio">Início</a></li><li><a href="#sobre">Sobre</a></li><li><a href="#servicos">Serviços</a></li><li><a href="#portfolio">Portfólio</a></li><li><a href="#contato">Contato</a></li></ul>
+    </div>
+    <div class="footer-col">
+      <h4>Serviços</h4>
+      <ul><li><a href="#servicos">Venda de Painéis</a></li><li><a href="#servicos">Locação</a></li><li><a href="#servicos">Instalação</a></li><li><a href="#servicos">Suporte Técnico</a></li></ul>
+    </div>
+    <div class="footer-col">
+      <h4>Fale Conosco</h4>
+      <ul class="footer-contact">
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .7 3a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.4c1 .4 2 .6 3 .7a2 2 0 0 1 1.6 2.8z"/></svg>(11) 99999-1234</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 20 12a8 8 0 0 1-8 8z"/></svg>(11) 98888-5678</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>contato@cslux.com.br</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Rua das Luminárias, 123 — Vila Nova Conceição, São Paulo - SP</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 CSLUX Painéis de LED. Todos os direitos reservados.</div>
+</footer>
+
+<a href="https://wa.me/5511999991234" target="_blank" rel="noopener" class="float-whats" aria-label="Abrir WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 20 12a8 8 0 0 1-8 8zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8 1-.1.1-.3.2-.5.1-.7-.3-1.4-.8-2-1.3-.5-.5-1-1.2-1.4-1.9-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.1 0-.3 0-.4-.1-.1-.5-1.3-.7-1.8-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.6.6-.9 1.3-.9 2.1.1.9.4 1.8 1 2.6 1 1.5 2.2 2.7 3.7 3.6.5.3 1 .5 1.5.7.7.2 1.3.2 1.8.1.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3z"/></svg>
+</a>
+
+<script>
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 20));
+
+  const burger = document.getElementById('burger');
+  const navLinks = document.getElementById('navLinks');
+  burger.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('visible')), { threshold: .15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // portfolio
+  const projects = [
+    { name: 'Festival Luz de Verão', cat: 'Shows & Festivais', tag: 'Painel P3.9 · 60m²', img: 'https://images.unsplash.com/photo-1703890641448-8b56191d7bdc?fm=jpg&q=75&w=900&auto=format&fit=crop', alt: 'Multidão reunida em torno de um palco com painel de LED' },
+    { name: 'Convenção Anual Vetta', cat: 'Corporativo', tag: 'Painel P2.6 · 24m²', img: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?fm=jpg&q=75&w=900&auto=format&fit=crop', alt: 'Pessoa apresentando em frente a um grande painel de LED em evento corporativo' },
+    { name: 'Casamento Ana & Rafael', cat: 'Casamentos', tag: 'Backdrop LED · 12m²', img: 'https://images.unsplash.com/photo-1643642969389-6db6b7a0fa56?fm=jpg&q=75&w=900&auto=format&fit=crop', alt: 'Close de parede com luzes coloridas de LED em ambiente de festa' },
+    { name: 'Fachada Shopping Rio Claro', cat: 'Fachadas', tag: 'Instalação fixa · 90m²', img: 'https://images.unsplash.com/photo-1503645054687-9dea1ba502b8?fm=jpg&q=75&w=900&auto=format&fit=crop', alt: 'Prédios com telas de LED à noite em área urbana' },
+    { name: 'Turnê Nacional Aurora', cat: 'Shows & Festivais', tag: 'Painel curvo · 80m²', img: 'https://images.unsplash.com/photo-1673362999134-645dab20cb20?fm=jpg&q=75&w=900&auto=format&fit=crop', alt: 'Pessoa em palco escuro com painel de LED ao fundo' },
+    { name: 'Lançamento Produto Nexa', cat: 'Corporativo', tag: 'Painel P2.6 · 18m²', img: 'https://images.unsplash.com/photo-1695233744051-d1d64f567082?fm=jpg&q=75&w=900&auto=format&fit=crop', alt: 'Pessoa em frente a um grande painel de LED' },
+  ];
+  const grid = document.getElementById('portfolioGrid');
+  projects.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'port-card reveal';
+    card.innerHTML = `<div class="port-thumb"><img src="${p.img}" alt="${p.alt}" loading="lazy"><div class="label">${p.cat}</div></div><div class="port-info"><h4>${p.name}</h4><span>${p.tag}</span></div>`;
+    grid.appendChild(card);
+    io.observe(card);
+  });
+
+  const form = document.getElementById('orcamentoForm');
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    document.getElementById('formFields').style.display='none';
+    document.getElementById('formSuccess').classList.add('show');
+  });
+</script>
+</body>
+</html>
