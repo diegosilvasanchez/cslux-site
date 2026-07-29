@@ -1,0 +1,60 @@
+SITE CSLUX — PAINÉIS DE LED
+============================
+
+Como usar
+---------
+1. Extraia o .zip mantendo a pasta "images" junto do "index.html" (o
+   arquivo depende da logo local dentro dela).
+2. Abra o arquivo "index.html" em qualquer navegador para visualizar o site.
+3. Para publicar, envie a pasta inteira (index.html + pasta images) para
+   seu serviço de hospedagem (ex: Hostinger, Vercel, Netlify, GitHub Pages,
+   cPanel, etc). É um site de página única, não precisa de servidor
+   especial nem instalação.
+
+O que ainda precisa ser ajustado antes de publicar
+---------------------------------------------------
+1. WHATSAPP: troque o número "5511999991234" (formato 55DDDXXXXXXXXX) nos
+   3 lugares em que aparece no arquivo: botão do herói, bolha flutuante e
+   rodapé.
+2. TELEFONE, E-MAIL E ENDEREÇO: estão com dados fictícios na seção Contato
+   e no rodapé — procure por "(11) 99999-1234", "contato@cslux.com.br" e
+   "Rua das Luminárias" e substitua pelos dados reais.
+3. FORMULÁRIO DE ORÇAMENTO: hoje ele só mostra uma mensagem de "enviado" na
+   tela (é 100% estático, sem back-end). Para receber os pedidos de verdade
+   por e-mail, é preciso conectar a um serviço como Formspree, Getform, ou
+   um back-end próprio. Posso te ajudar a configurar isso quando quiser.
+
+Sobre as imagens
+-----------------
+- images/cslux-logo.png — a logo oficial da CSLUX (fornecida por você),
+  recortada e com fundo transparente. É usada no cabeçalho e no rodapé.
+  Precisa continuar dentro da pasta "images" ao lado do index.html.
+- As demais fotos (herói, seção Sobre, teaser e portfólio) são hotlinks
+  para o Unsplash (banco de imagens gratuito, uso comercial livre, sem
+  exigência de atribuição — licença em https://unsplash.com/license).
+  Elas carregam diretamente do Unsplash quando alguém abre o site, então
+  é necessário conexão com a internet.
+
+Se preferir usar fotos reais dos seus próprios projetos/painéis, é só me
+enviar os arquivos que eu troco os links de imagem pelos seus.
+
+Identidade visual
+------------------
+A paleta de cores segue o gradiente da logo oficial (ciano → petróleo) e
+o fundo acinzentado do arquivo da logo:
+- Cabeçalho e seção Início: cinza #A6A6A6 (mesmo tom de fundo da logo).
+- Demais seções: alternam entre dois tons de cinza claro (#ECECEA e
+  #DBDBD9) para dar ritmo visual sem fugir da paleta neutra.
+- Rodapé: cinza-chumbo escuro (#1B1D1F), como âncora visual no fim da
+  página.
+- Ciano (#2CE3EA) e petróleo (#12808F/#0A4650), extraídos da logo, são
+  usados em botões, ícones, links e destaques de texto.
+
+Estrutura do site
+------------------
+- index.html — arquivo único com todo o HTML, CSS e JavaScript do site.
+- images/ — logo da CSLUX usada no cabeçalho e rodapé.
+- Seções: Início, Sobre, Serviços, Portfólio, Contato.
+- Botão "Solicitar Orçamento"/"Nossos Serviços" leva ao formulário em Contato.
+- Botão "Fale Conosco"/WhatsApp (herói, rodapé e bolha flutuante) abre o
+  WhatsApp Web/App.
